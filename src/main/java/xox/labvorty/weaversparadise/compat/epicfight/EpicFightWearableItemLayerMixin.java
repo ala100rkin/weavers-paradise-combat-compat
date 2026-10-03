@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import xox.labvorty.weaversparadise.items.armor.ModelReplacer;
 import xox.labvorty.weaversparadise.items.armor.RenderingData;
+import xox.labvorty.weaversparadise.compat.shared.CosplayCurio;
 import yesman.epicfight.api.client.event.types.render.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;

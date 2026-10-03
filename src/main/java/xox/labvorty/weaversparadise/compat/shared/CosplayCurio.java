@@ -1,18 +1,18 @@
-package xox.labvorty.weaversparadise.compat.epicfight;
+package xox.labvorty.weaversparadise.compat.shared;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.api.CuriosApi;
 import xox.labvorty.weaversparadise.items.armor.ModelReplacer;
 
-final class CosplayCurio {
-    record Match(ItemStack stack, ModelReplacer replacer) {
+public final class CosplayCurio {
+    public record Match(ItemStack stack, ModelReplacer replacer) {
     }
 
     private CosplayCurio() {
     }
 
-    static Match find(LivingEntity entity) {
+    public static Match find(LivingEntity entity) {
         var handler = CuriosApi.getCuriosInventory(entity).orElse(null);
         if (handler == null) {
             return null;

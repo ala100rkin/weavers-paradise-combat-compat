@@ -1,5 +1,7 @@
 package xox.labvorty.weaversparadise.compat.epicfight;
 
+import xox.labvorty.weaversparadise.compat.shared.CosplayCurio;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.LocalPlayer;
