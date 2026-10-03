@@ -1,0 +1,59 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.105'
+}
+
+version = '1.0.0'
+group = rootProject.mod_group_id
+base { archivesName = 'weaversparadise-epicfight-compat' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+repositories {
+    maven { url = 'https://cursemaven.com' }
+    maven { url = 'https://maven.blamejared.com/' }
+    maven { url = 'https://modmaven.dev' }
+    maven { url = 'https://maven.theillusivec4.top/' }
+    maven { url = 'https://maven.terraformersmc.com/' }
+    maven { url = 'https://api.modrinth.com/maven' }
+}
+
+neoForge {
+    version = rootProject.neo_version
+    parchment {
+        mappingsVersion = rootProject.parchment_mappings_version
+        minecraftVersion = rootProject.parchment_minecraft_version
+    }
+    mods {
+        weaversparadise_epicfight_compat {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+dependencies {
+    compileOnly 'maven.modrinth:epic-fight:8HHhJt6i'
+    compileOnly 'maven.modrinth:weavers-paradise:5IBjIixe'
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${rootProject.curios_version}"
+}
+
+def metadata = tasks.register('generateModMetadata', ProcessResources) {
+    def properties = [
+        mod_id: 'weaversparadise_epicfight_compat',
+        mod_name: 'Weavers Paradise Epic Fight Compatibility',
+        mod_version: project.version,
+        neo_version: rootProject.neo_version,
+        minecraft_version_range: rootProject.minecraft_version_range,
+        loader_version_range: rootProject.loader_version_range
+    ]
+    inputs.properties properties
+    expand properties
+    from 'src/main/templates'
+    into layout.buildDirectory.dir('generated/sources/modMetadata')
+}
+
+sourceSets.main.resources.srcDir metadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
