@@ -3,8 +3,7 @@
   "package": "xox.labvorty.weaversparadise.compat.epicfight",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "EpicFightWearableItemLayerMixin",
-    "EpicFightFirstPersonRendererMixin"
+    "EpicFightWearableItemLayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

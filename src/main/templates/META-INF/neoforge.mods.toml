@@ -7,7 +7,7 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="Vortianski and community compatibility patches"
-description='''Keeps Weavers Paradise cosplay armor visible in Epic Fight, including first-person combat rendering.'''
+description='''Keeps Weavers Paradise cosplay armor correctly rendered with Epic Fight, including mage armor from Iron's Spells 'n Spellbooks and EFM x Irons resource pack models. Iron's Spells 'n Spellbooks is optional.'''
 
 [[mixins]]
 config="${mod_id}.mixins.json"
@@ -36,6 +36,13 @@ side="CLIENT"
 [[dependencies.${mod_id}]]
 modId="epicfight"
 type="required"
+versionRange="[0,)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="irons_spellbooks"
+type="optional"
 versionRange="[0,)"
 ordering="AFTER"
 side="CLIENT"

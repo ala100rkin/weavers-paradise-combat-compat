@@ -13,20 +13,24 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.packs.resources.Resource;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import java.util.Optional;
 import xox.labvorty.weaversparadise.items.armor.ModelReplacer;
 import xox.labvorty.weaversparadise.compat.shared.CosplayCurio;
 import xox.labvorty.weaversparadise.compat.shared.AdditionalCosplayMeshCache;
 import yesman.epicfight.api.client.event.types.render.AnimatedArmorTextureEvent;
 import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.SkinnedMesh;
+import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
@@ -51,14 +55,61 @@ public abstract class EpicFightWearableItemLayerMixin {
             HumanoidArmorLayer<?, ?, ?> armorLayer,
             HumanoidModel<?> defaultArmorModel,
             Model armorModel,
-            LivingEntity livingEntity
+            LivingEntity livingEntity,
+            @Local(argsOnly = true) EquipmentSlot slot
     ) {
         CosplayCurio.Match match = CosplayCurio.find(livingEntity);
         if (match == null) {
             return armorItemKey;
         }
 
-        return BuiltInRegistries.ITEM.getKey(match.stack().getItem());
+        ResourceLocation cosplayItemKey = BuiltInRegistries.ITEM.getKey(match.stack().getItem());
+        return ResourceLocation.fromNamespaceAndPath(
+                cosplayItemKey.getNamespace(),
+                "epicfight_cosplay/" + cosplayItemKey.getPath() + "/" + slot.getName()
+        );
+    }
+
+    @ModifyExpressionValue(
+            method = "getArmorModel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/packs/resources/ResourceManager;getResource(Lnet/minecraft/resources/ResourceLocation;)Ljava/util/Optional;"
+            )
+    )
+    private Optional<Resource> weaversparadise$skipEpicFightArmorOverrideForCosplay(
+            Optional<Resource> epicFightArmorModel,
+            @Local(argsOnly = true) LivingEntity livingEntity
+    ) {
+        return CosplayCurio.find(livingEntity) != null ? Optional.empty() : epicFightArmorModel;
+    }
+
+    @Redirect(
+            method = "getArmorModel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lyesman/epicfight/api/client/model/transformer/HumanoidModelBaker;bakeArmor(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ArmorItem;Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/client/model/HumanoidModel;Lnet/minecraft/client/model/Model;Lnet/minecraft/client/model/HumanoidModel;Lyesman/epicfight/client/mesh/HumanoidMesh;)Lyesman/epicfight/api/client/model/SkinnedMesh;",
+                    remap = false
+            ),
+            remap = false
+    )
+    private SkinnedMesh weaversparadise$bakeCosplayWithoutArmorTransformers(
+            LivingEntity livingEntity,
+            ItemStack itemStack,
+            ArmorItem armorItem,
+            EquipmentSlot slot,
+            HumanoidModel<?> entityArmorModel,
+            Model selectedArmorModel,
+            HumanoidModel<?> defaultArmorModel,
+            HumanoidMesh humanoidMesh
+    ) {
+        if (CosplayCurio.find(livingEntity) != null && selectedArmorModel instanceof HumanoidModel<?> cosplayModel) {
+            return HumanoidModelBaker.VANILLA_TRANSFORMER.transformArmorModel(cosplayModel);
+        }
+
+        return HumanoidModelBaker.bakeArmor(
+                livingEntity, itemStack, armorItem, slot, entityArmorModel,
+                selectedArmorModel, defaultArmorModel, humanoidMesh);
     }
 
     @Redirect(
@@ -180,26 +231,4 @@ public abstract class EpicFightWearableItemLayerMixin {
                 renderingData.light(), color.x, color.y, color.z, color.w, renderingData.overlay(), armature, poseMatrices);
     }
 
-    @ModifyExpressionValue(
-            method = "getArmorModel",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lyesman/epicfight/client/events/engine/RenderEngine;shouldRenderVanillaModel()Z",
-                    remap = false
-            ),
-            remap = false
-    )
-    private boolean weaversparadise$bypassCachedArmorMesh(
-            boolean shouldRenderVanillaModel,
-            HumanoidArmorLayer<?, ?, ?> armorLayer,
-            HumanoidModel<?> defaultArmorModel,
-            Model armorModel,
-            LivingEntity livingEntity
-    ) {
-        if (CosplayCurio.find(livingEntity) != null) {
-            return true;
-        }
-
-        return shouldRenderVanillaModel;
-    }
 }
