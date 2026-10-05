@@ -3,9 +3,9 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.105'
 }
 
-version = '1.0.0'
+version = '1.1.0'
 group = rootProject.mod_group_id
-base { archivesName = 'weaversparadise-epicfight-compat' }
+base { archivesName = 'weaversparadise-combat-compat' }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
@@ -40,7 +40,7 @@ dependencies {
 def metadata = tasks.register('generateModMetadata', ProcessResources) {
     def properties = [
         mod_id: 'weaversparadise_epicfight_compat',
-        mod_name: "Weavers Paradise Epic Fight + Iron's Spells Compatibility",
+        mod_name: 'Weavers Paradise Combat Compatibility',
         mod_version: project.version,
         neo_version: rootProject.neo_version,
         minecraft_version_range: rootProject.minecraft_version_range,

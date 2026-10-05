@@ -2,6 +2,8 @@ package xox.labvorty.weaversparadise.compat.epicfight;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -17,7 +19,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.Optional;
@@ -34,14 +36,9 @@ import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+@Pseudo
 @Mixin(targets = "yesman.epicfight.client.renderer.patched.layer.WearableItemLayer", remap = false)
 public abstract class EpicFightWearableItemLayerMixin {
-    @Shadow(remap = false)
-    private void renderArmor(PoseStack poseStack, MultiBufferSource buffer, int packedLight, SkinnedMesh armorModel,
-                             Armature armature, float red, float green, float blue, ResourceLocation texture,
-                             OpenMatrix4f[] poseMatrices) {
-    }
-
     @ModifyExpressionValue(
             method = "getArmorModel",
             at = @At(
@@ -164,7 +161,7 @@ public abstract class EpicFightWearableItemLayerMixin {
         return cosplayModel;
     }
 
-    @Redirect(
+    @WrapOperation(
             method = "renderLayer(Lyesman/epicfight/world/capabilities/entitypatch/LivingEntityPatch;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I[Lyesman/epicfight/api/utils/math/OpenMatrix4f;FFFF)V",
             at = @At(
                     value = "INVOKE",
@@ -184,6 +181,7 @@ public abstract class EpicFightWearableItemLayerMixin {
             float blue,
             ResourceLocation texture,
             OpenMatrix4f[] poseMatrices,
+            Operation<Void> original,
             LivingEntityPatch<?> entityPatch,
             LivingEntity livingEntity,
             HumanoidArmorLayer<?, ?, ?> armorLayer,
@@ -201,7 +199,8 @@ public abstract class EpicFightWearableItemLayerMixin {
             @Local(index = 19) ArmorItem armorItem,
             @Local(index = 21) HumanoidModel<?> defaultModel
     ) {
-        this.renderArmor(poseStack, buffer, packedLight, armorMesh, armature, red, green, blue, texture, poseMatrices);
+        original.call(wearableItemLayer, poseStack, buffer, packedLight, armorMesh, armature,
+                red, green, blue, texture, poseMatrices);
 
         if (materialLayerIndex != 0) {
             return;

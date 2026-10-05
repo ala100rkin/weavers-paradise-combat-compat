@@ -7,7 +7,7 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="Vortianski and community compatibility patches"
-description='''Keeps Weavers Paradise cosplay armor correctly rendered with Epic Fight, including mage armor from Iron's Spells 'n Spellbooks and EFM x Irons resource pack models. Iron's Spells 'n Spellbooks is optional.'''
+description='''Client-side combat compatibility for Weavers Paradise cosplay rendering with Epic Fight, Iron's Spells 'n Spellbooks, and Better Lock On. These integrations are optional.'''
 
 [[mixins]]
 config="${mod_id}.mixins.json"
@@ -35,7 +35,14 @@ side="CLIENT"
 
 [[dependencies.${mod_id}]]
 modId="epicfight"
-type="required"
+type="optional"
+versionRange="[0,)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="betterlockon"
+type="optional"
 versionRange="[0,)"
 ordering="AFTER"
 side="CLIENT"
